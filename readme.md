@@ -11,10 +11,10 @@
 <br><br>
 
 # Inhoudsopgave
-1. [Probleemstelling](#Probleemstelling)
-2. [Deelvragen](#Deelvragen)
-3. [Analyse](#Analyse)
-4. [Programma-structuur en testing](#Programma-structuur-en-testing)
+1. [Probleemstelling](#probleemstelling)
+2. [Deelvragen](#deelvragen)
+3. [Analyse](#analyse)
+4. [Programma-structuur en testing](#programma-structuur-en-testing)
 
 <br><br>
 
