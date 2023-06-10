@@ -11,10 +11,10 @@
 <br><br>
 
 # Inhoudsopgave
-1. [Probleemstelling](#Probleemstelling)
-2. [Deelvragen](#Deelvragen)
-3. [Analyse](#Analyse)
-4. [Programma-structuur en testing](#Programma-structuur-en-testing)
+1. [Probleemstelling](#1. Probleemstelling)
+2. [Deelvragen](#2. Deelvragen)
+3. [Analyse](#3. Analyse)
+4. [Programma-structuur en testing](#4. Programma-structuur-en-testing)
 
 <br><br>
 
@@ -52,7 +52,7 @@ Door te weten of er een pakket TTL (Time To Live) buiten de standaard afwijking 
 
 <br><br>
 
-# Analyse
+# 3. Analyse
 
 ## 3.1	Hoeveel verschillende TCP hebben een bepaalde status
 Bij deze deelvraag is de volgende data nodig:
@@ -94,7 +94,7 @@ Hierin wordt de standaard afwijking berekend op basis van alle pakket hun TTL in
 
 <br><br>
 
-# Programma-structuur-en-testing
+# 4. Programma-structuur-en-testing
 ### Instance variabelen in de "TcpConnectionAnalyzer" class:
 - **file_path**: een string die het pad naar het datasetbestand opslaat.
 - **packages**: een lijst die de pakketten uit het datasetbestand opslaat.
