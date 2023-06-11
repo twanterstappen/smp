@@ -1,3 +1,4 @@
 /.pytest_cache/
 /tcp_analyzer/__pycache__
 /tests/__pycache__
+/tests/.pytest_cache
