@@ -72,18 +72,19 @@ class TestTcpConnectionAnalyzer:
         # set random int
         r_index = randint(0,(len(self.analyzer.packages)-1))
         
-        
         assert type(self.analyzer.packages) == list
         # check if keys from the packages are in the keys
         assert all(key in self.analyzer.packages[r_index] for key in keys)
-                
+    
+    
     # Negative test extract_data
     def test_extract_data_negative(self):
         # Data with missing keys
-        raw_data = [{'_source': {'layers': {'ip': {'ip.src': '192.168.0.1','ip.ttl': 64}}}},]
-        
+        def load_data():
+            return [{'_source': {'layers': {'ip': {'ip.src': '192.168.0.1','ip.ttl': 64}}}}]
+
         # Set the modified raw_data as the data source
-        self.analyzer.load_data = lambda: raw_data
+        self.analyzer.load_data = load_data
         
         # Assert that a KeyError is raised when extracting data
         with pytest.raises(KeyError):
@@ -91,25 +92,46 @@ class TestTcpConnectionAnalyzer:
         
         
         
-    """NEED TO INPROVE"""
-    # Test function counting connection status
+        
+        
+    """NEED TO BE IMPROVED"""
+    # Test function counting connection status and display
     ###################################################################################################################################
+    
+    # Positive test count_connection_status
     def test_count_connection_status_positive(self):
+        keys = ['closed', 'no-fin', 'failed-handshake']
         # Calling the class and necessary functions
         self.analyzer.extract_data()
         self.analyzer.find_connection()
         self.analyzer.count_connection_status()
+
         assert type(self.analyzer.status_count) == dict
+        # check if keys from the packages are in the keys
+        assert all(key in self.analyzer.status_count for key in keys)
         
-    # Testing output of display count connection
+        
+    # Negative test count_connection_status
+    def test_count_connection_status_negative(self):
+        self.analyzer.connections = {'status': None}
+        # Test for TypeError if status = None
+        with pytest.raises(TypeError):
+            self.analyzer.count_connection_status()
+        
+
+
+
+
+
+    # Positive test display_count_connection_status
     def test_display_count_connection_status_positive(self, capfd):
-        # Initialize colorama, for ANSI escape sequences for the terminal output
+        # Initialize colorama, for color used in output of function
         init()
         expected_output = (
             "Total connections: 221\n"
             "    closed: 84\n"
             "    no-fin: 85\n"
-            "    failed-handshake: 52\n"
+            "    failed-handshake: 52"
         )
         
         # Calling the class and necessary functions
@@ -119,7 +141,9 @@ class TestTcpConnectionAnalyzer:
         self.analyzer.display_count_connection_status()
         # Capture the print output
         captured = capfd.readouterr()
-
+        # removing all the white spaces
         actual_output = captured.out.strip()
+        
         assert actual_output == expected_output.strip()
+        assert type(actual_output) == type(expected_output)
         
