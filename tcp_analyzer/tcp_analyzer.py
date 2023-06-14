@@ -4,6 +4,8 @@ from math import sqrt, erf
 import argparse
 from colorama import Fore
 
+import matplotlib.pyplot as plt
+
 
 
 class TcpConnectionAnalyzer:
@@ -168,6 +170,27 @@ class TcpConnectionAnalyzer:
     
     # Display the total connections and the different statuses
     def display_count_connection_status(self) -> None:
+        left = []
+        height = []
+        statusses = list(self.status_count.keys())
+        print(len(statusses))
+        for index in range(1, len(statusses)+1):
+            left.append(index)
+        for status in statusses:
+           height.append(self.status_count[status])
+           
+        print(statusses, height, left)
+        plt.bar(left, height, tick_label = statusses,
+        width = 0.8, color = ['#7874ff', '#78b4ff'])
+        
+        # naming the x-axis
+        plt.xlabel('x - axis')
+        # naming the y-axis
+        plt.ylabel('y - axis')
+        # plot title
+        plt.title('My bar chart!')
+        plt.show()
+        
         total_connections = 0
         # Count for each status
         print_status_count = []
