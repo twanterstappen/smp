@@ -170,16 +170,15 @@ class TcpConnectionAnalyzer:
     
     # Display the total connections and the different statuses
     def display_count_connection_status(self) -> None:
+        # Displaying a graph plot with bars
         left = []
         height = []
         statusses = list(self.status_count.keys())
-        print(len(statusses))
         for index in range(1, len(statusses)+1):
             left.append(index)
         for status in statusses:
            height.append(self.status_count[status])
            
-        print(statusses, height, left)
         plt.bar(left, height, tick_label = statusses,
         width = 0.8, color = ['#7874ff', '#78b4ff'])
         
@@ -189,7 +188,7 @@ class TcpConnectionAnalyzer:
         plt.ylabel('y - axis')
         # plot title
         plt.title('My bar chart!')
-        plt.show()
+        
         
         total_connections = 0
         # Count for each status
@@ -279,7 +278,7 @@ class TcpConnectionAnalyzer:
         for item in self.possible_hijacking or []:
             print(f'\nIndex of connection: {Fore.YELLOW}{item}{Fore.WHITE}, {Fore.RED}Possible Hijacking detected!{Fore.WHITE} Anomalous TTL value: {Fore.YELLOW}{self.possible_hijacking[item]["anomalous-ttl"]}{Fore.WHITE}, Deviation percentage: {Fore.YELLOW}{self.possible_hijacking[item]["deviation-percentage"]:.2f}%{Fore.WHITE}, ip-client: {Fore.YELLOW}{self.connections[item]["ip_client"]}{Fore.WHITE}\n')
                 
-def main():
+def main() -> None:
     # set timer for duration of the program
     start = time()
     
@@ -307,6 +306,9 @@ def main():
     if args.connections or args.all:
         analyzer.count_connection_status()
         analyzer.display_count_connection_status()
+        # Check if there is a graph plot and show it
+        if plt:
+            plt.show()
         
     # Calling functions for syn_flood
     if args.syn_flood_minimum or args.all:

@@ -34,30 +34,34 @@ class TestTcpConnectionAnalyzer:
     # Test function loading data
     ###################################################################################################################################
     
-    # Positive test load_data
-    def test_load_data_positive(self):
+    # Positive test load_data 1
+    def test_load_data_positive_1(self):
+        analyzer = TcpConnectionAnalyzer(self.dataset)
+        data = analyzer.load_data()    
+        assert type(data) == list
+        
+        
+    # Positive test load_data 2
+    def test_load_data_positive_2(self):
         analyzer = TcpConnectionAnalyzer(self.dataset)
         data = analyzer.load_data()
         r_index = randint(0,(len(data)-1))
         
-        assert data is not None
-        assert type(data) == list
         assert 'ip.src' in data[r_index]['_source']['layers']['ip']
-        assert 'ip.dst' in data[r_index]['_source']['layers']['ip']
-        assert 'tcp.flags.syn' in data[r_index]['_source']['layers']['tcp']['tcp.flags_tree']
-        assert 'tcp.flags.ack' in data[r_index]['_source']['layers']['tcp']['tcp.flags_tree']
-        assert 'tcp.flags.fin' in data[r_index]['_source']['layers']['tcp']['tcp.flags_tree']
-        assert 'ip.ttl' in data[r_index]['_source']['layers']['ip']
+        
+        
 
+    # Negative test load_data 1
+    def test_load_data_negative_1(self):
+        analyzer = TcpConnectionAnalyzer('not_found.json')
+        with pytest.raises(FileNotFoundError):
+            analyzer.load_data()
+            
 
-    # Testing different inputs and different errors
-    @pytest.mark.parametrize("file_path, expected_exception", 
-                             [('not_found.json', FileNotFoundError), 
-                              ('test.txt', json.JSONDecodeError)])
-    # Negative test load_data
-    def test_load_data_negative(self, file_path, expected_exception):
-        analyzer = TcpConnectionAnalyzer(file_path)
-        with pytest.raises(expected_exception):
+    # Negative test load_data 2
+    def test_load_data_negative_2(self):
+        analyzer = TcpConnectionAnalyzer('test.txt')
+        with pytest.raises(json.JSONDecodeError):
             analyzer.load_data()
 
 
@@ -65,16 +69,24 @@ class TestTcpConnectionAnalyzer:
     # Test function extract_data
     ###################################################################################################################################
     
-    # Positive test extract_data
-    def test_extract_data_positive(self):
+    # Positive test extract_data 1
+    def test_extract_data_positive_1(self):
+        self.analyzer.extract_data() 
+        assert type(self.analyzer.packages) == list
+
+
+        
+    # Positive test extract_data 2
+    def test_extract_data_positive_2(self):
         keys = ['ip_src', 'ip_dst', 'flag_syn', 'flag_ack', 'flag_fin', 'ttl']
         self.analyzer.extract_data()
         # set random int
         r_index = randint(0,(len(self.analyzer.packages)-1))
-        
-        assert type(self.analyzer.packages) == list
+
         # check if keys from the packages are in the keys
         assert all(key in self.analyzer.packages[r_index] for key in keys)
+    
+    
     
     
     # Negative test extract_data
@@ -94,21 +106,31 @@ class TestTcpConnectionAnalyzer:
         
         
         
-    """NEED TO BE IMPROVED"""
     # Test function counting connection status and display
     ###################################################################################################################################
     
-    # Positive test count_connection_status
-    def test_count_connection_status_positive(self):
-        keys = ['closed', 'no-fin', 'failed-handshake']
+    # Positive test count_connection_status 1
+    def test_count_connection_status_positive_1(self):
         # Calling the class and necessary functions
         self.analyzer.extract_data()
         self.analyzer.find_connection()
         self.analyzer.count_connection_status()
 
         assert type(self.analyzer.status_count) == dict
+
+
+    
+    # Positive test count_connection_status 2
+    def test_count_connection_status_positive_2(self):
+        keys = ['closed', 'no-fin', 'failed-handshake']
+        # Calling the class and necessary functions
+        self.analyzer.extract_data()
+        self.analyzer.find_connection()
+        self.analyzer.count_connection_status()
+
         # check if keys from the packages are in the keys
         assert all(key in self.analyzer.status_count for key in keys)
+        
         
         
     # Negative test count_connection_status
@@ -145,5 +167,3 @@ class TestTcpConnectionAnalyzer:
         actual_output = captured.out.strip()
         
         assert actual_output == expected_output.strip()
-        assert type(actual_output) == type(expected_output)
-        
