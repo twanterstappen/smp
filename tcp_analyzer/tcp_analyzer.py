@@ -11,23 +11,23 @@ import matplotlib.pyplot as plt
 class TcpConnectionAnalyzer:
     def __init__(self, file_path: str) -> None:
         # path to dataset, dataset has to be .json
-        self.file_path = file_path
+        self.file_path: str = file_path
         # the dataset itself
-        self.packages = []
+        self.packages: list = []
         # the different connections
-        self.connections = []
+        self.connections: list = []
         # Different statusus with there counter
-        self.status_count = {}
+        self.status_count: dict = {}
         # The ip with the total of syn's of that ip
-        self.syn_flood_counter = {}
+        self.syn_flood_counter: dict = {}
         # All the possible hijacking from calculation
-        self.possible_hijacking = {}
+        self.possible_hijacking: dict = {}
         # Minimum of syn request for registration for syn flood attack
-        self.syn_flood_minimum = 3
+        self.syn_flood_minimum: int = 3
         # Threshold for the standard deviation, where if a TTL value is under the threshold percentage a warning is given
-        self.hijacking_threshold_percentage = 2.5
+        self.hijacking_threshold_percentage: float = 2.5
         # Setting the warning color for syn_flood, every ip with more then this int gets color red
-        self.syn_flood_warning_color = 7
+        self.syn_flood_warning_color: int = 7
 
 
     # reading the data from the dataset
@@ -49,18 +49,18 @@ class TcpConnectionAnalyzer:
         raw_data = self.load_data()
         for item in raw_data or []:
             try:
-                ip_src = item['_source']['layers']['ip']['ip.src']
-                ip_dst = item['_source']['layers']['ip']['ip.dst']
-                flag_syn = item['_source']['layers']['tcp']['tcp.flags_tree']['tcp.flags.syn']
-                flag_ack = item['_source']['layers']['tcp']['tcp.flags_tree']['tcp.flags.ack']
-                flag_fin = item['_source']['layers']['tcp']['tcp.flags_tree']['tcp.flags.fin']
-                ttl = item['_source']['layers']['ip']['ip.ttl']
+                ip_src: str = item['_source']['layers']['ip']['ip.src']
+                ip_dst: str = item['_source']['layers']['ip']['ip.dst']
+                flag_syn: str = item['_source']['layers']['tcp']['tcp.flags_tree']['tcp.flags.syn']
+                flag_ack: str = item['_source']['layers']['tcp']['tcp.flags_tree']['tcp.flags.ack']
+                flag_fin: str = item['_source']['layers']['tcp']['tcp.flags_tree']['tcp.flags.fin']
+                ttl: str = item['_source']['layers']['ip']['ip.ttl']
             except KeyError:
                 print(Fore.RED + 'ERROR: Key was not found' + Fore.WHITE)
                 # Re-raise the exception
                 raise
             try:
-                package = {'ip_src':ip_src, 'ip_dst': ip_dst, 'flag_syn':flag_syn, 'flag_ack':flag_ack, 'flag_fin':flag_fin, 'ttl': ttl}
+                package: dict = {'ip_src':ip_src, 'ip_dst': ip_dst, 'flag_syn':flag_syn, 'flag_ack':flag_ack, 'flag_fin':flag_fin, 'ttl': ttl}
             except NameError:
                 print(Fore.RED + 'ERROR: Local variable is not defined' + Fore.WHITE)
                 # Re-raise the exception
@@ -72,12 +72,12 @@ class TcpConnectionAnalyzer:
     # Find the connections in the dataset
     def find_connection(self) -> None:
         for index, item in enumerate(self.packages) or []:
-            ip_src = item['ip_src']
-            ip_dst = item['ip_dst']
-            flag_syn = item['flag_syn']
-            flag_ack = item['flag_ack']
+            ip_src: str = item['ip_src']
+            ip_dst: str = item['ip_dst']
+            flag_syn: str = item['flag_syn']
+            flag_ack: str = item['flag_ack']
             if flag_syn == '1' and flag_ack == '0':
-                connection = {'ip_client':ip_src, 'ip_server':ip_dst, 'status':'pending', 'packages_index':[index,]}
+                connection: dict = {'ip_client':ip_src, 'ip_server':ip_dst, 'status':'pending', 'packages_index':[index,]}
                 # Start from the package after the syn
                 self.find_ack_fin(index + 1, connection)
 
@@ -85,39 +85,39 @@ class TcpConnectionAnalyzer:
 
     # check for connection from the syn_ack to fin
     def find_ack_fin(self, start_index: int, connection: dict) -> None:
-        handschake_syn_ack = False
-        handshake_ack = False
-        stop_loop = False
+        handschake_syn_ack: bool = False
+        handshake_ack: bool = False
+        stop_loop: bool = False
         # Start the loop were find_connection was
         for index in range(start_index, len(self.packages)) or []:
             item = self.packages[index]
             
-            ip_src = item['ip_src']
-            ip_dst = item['ip_dst']
-            flag_syn = item['flag_syn']
-            flag_ack = item['flag_ack']
-            flag_fin = item['flag_fin']
+            ip_src: str = item['ip_src']
+            ip_dst: str = item['ip_dst']
+            flag_syn: str = item['flag_syn']
+            flag_ack: str = item['flag_ack']
+            flag_fin: str = item['flag_fin']
             
             # Check for syn_ack, for establishing the handshake
             if ip_src == connection['ip_server'] and ip_dst == connection['ip_client'] and flag_syn == '1' and flag_ack == '1':                
-                handschake_syn_ack = True
+                handschake_syn_ack: bool = True
                 connection['packages_index'].append(index)
                 
             # Check for ack after the syn_ack, for establishing the handshake
             elif ip_src == connection['ip_client'] and ip_dst == connection['ip_server'] and flag_syn == '0' and flag_ack == '1':                
-                handshake_ack = True
-                connection['status'] = 'open'
+                handshake_ack: bool = True
+                connection['status']: str = 'open'
                 connection['packages_index'].append(index)
                 
             # Check for syn, if there is a syn the connection wasn't opened or ended properly
             elif ip_src == connection['ip_client'] and ip_dst == connection['ip_server'] and flag_syn == '1' and flag_ack == '0':                
                 # Check if the connection wasn't ended properly, otherwise the original handshake failed
                 if handschake_syn_ack and handshake_ack:
-                    connection['status'] = 'no-fin'
+                    connection['status']: str = 'no-fin'
                 else:
-                    connection['status'] = 'failed-handshake'
+                    connection['status']: str = 'failed-handshake'
                 self.connections.append(connection)
-                stop_loop = True
+                stop_loop: bool = True
                 break
             
             # Can only run if there was a syn_ack and ack
@@ -132,37 +132,37 @@ class TcpConnectionAnalyzer:
                       
                 # Check if fin is from the client to the server  
                 elif ip_src == connection['ip_client'] and ip_dst == connection['ip_server'] and flag_fin == '1':
-                    connection['status'] = 'closed'
+                    connection['status']: str = 'closed'
                     connection['packages_index'].append(index)
                     self.connections.append(connection)
-                    stop_loop = True
+                    stop_loop: bool = True
                     break
                 
                 # Check if fin is from the server to the client
                 elif ip_src == connection['ip_server'] and ip_dst == connection['ip_client'] and flag_fin == '1':
-                    connection['status'] = 'closed'
+                    connection['status']: str = 'closed'
                     connection['packages_index'].append(index)
                     self.connections.append(connection)
-                    stop_loop = True
+                    stop_loop: bool = True
                     break
                 
         # if the loop isn't stopped and there was a succesfull handshake, there can be assumed that there was no fin
         if not stop_loop and handschake_syn_ack and handshake_ack:
-            connection['status'] = 'no-fin'
+            connection['status']: str = 'no-fin'
             self.connections.append(connection)
             
         # otherwise, there can be assumed that the handshake failed
         elif not stop_loop:
-            connection['status'] = 'failed-handshake'
+            connection['status']: str = 'failed-handshake'
             self.connections.append(connection)
     
     
     def count_connection_status(self) -> None:
-        status_count = {}
+        status_count: dict = {}
         # check for different statuses and counting them          
         for item in self.connections or []:
             if item['status'] not in status_count:
-                status_count[item['status']] = 1
+                status_count[item['status']]:int = 1
             elif item['status'] in status_count:
                 status_count[item['status']] += 1
                 
@@ -171,9 +171,10 @@ class TcpConnectionAnalyzer:
     # Display the total connections and the different statuses
     def display_count_connection_status(self) -> None:
         # Displaying a graph plot with bars
-        left = []
-        height = []
-        statusses = list(self.status_count.keys())
+        left: list = []
+        height: list = []
+        # different statusses
+        statusses: list = list(self.status_count.keys())
         for index in range(1, len(statusses)+1):
             left.append(index)
         for status in statusses:
@@ -183,17 +184,17 @@ class TcpConnectionAnalyzer:
         width = 0.8, color = ['#7874ff', '#78b4ff'])
         
         # naming the x-axis
-        plt.xlabel('x - axis')
+        plt.xlabel('connection types')
         # naming the y-axis
-        plt.ylabel('y - axis')
+        plt.ylabel('count')
         # plot title
-        plt.title('My bar chart!')
+        plt.title('Different connections')
         
         
-        total_connections = 0
+        total_connections: int = 0
         # Count for each status
-        print_status_count = []
-        print_connections = """"""
+        print_status_count: list = []
+        print_connections: str = """"""
         
         # saving the statuses with each count as string for printing
         for item in self.status_count or []:
@@ -208,11 +209,11 @@ class TcpConnectionAnalyzer:
         
     # Counting the syn request for every IP
     def syn_flood(self) -> None:
-        syn_flood_counter = {}
+        syn_flood_counter: dict = {}
         # Counter for the syn request
         for item in self.connections or []:
             if item['ip_client'] not in syn_flood_counter:
-                syn_flood_counter[item['ip_client']] = 1
+                syn_flood_counter[item['ip_client']]: int = 1
             elif item['ip_client'] in syn_flood_counter:
                 syn_flood_counter[item['ip_client']] += 1
         # Remove the ip from the dictionary if there were less then 'self.syn_flood_minimum' syn requests
@@ -220,7 +221,7 @@ class TcpConnectionAnalyzer:
             if syn_flood_counter[item] < self.syn_flood_minimum:
                 del syn_flood_counter[item]
         
-        self.syn_flood_counter = syn_flood_counter
+        self.syn_flood_counter: dict = syn_flood_counter
 
         
     # Display possible syn flood
@@ -237,7 +238,7 @@ class TcpConnectionAnalyzer:
     # Searching for possible hijacking with the standard deviation of the TTL
     def tcp_hijacking(self) -> None:
         for connection_index, connection in enumerate(self.connections) or []:
-            ttl_values = []
+            ttl_values: list = []
             if connection['status'] != 'failed-handshake':
                 # List all the TTL values from a connection
                 for index, value in enumerate(connection['packages_index']) or []:
@@ -306,9 +307,6 @@ def main() -> None:
     if args.connections or args.all:
         analyzer.count_connection_status()
         analyzer.display_count_connection_status()
-        # Check if there is a graph plot and show it
-        if plt:
-            plt.show()
         
     # Calling functions for syn_flood
     if args.syn_flood_minimum or args.all:
@@ -327,6 +325,10 @@ def main() -> None:
         analyzer.display_tcp_hijacking()
     print('-'*60)
 
+    # Load the plt graph after all the functions
+    if args.syn_flood_minimum or args.all:
+        if plt:
+            plt.show()
    
 
     # end timer and display the duration

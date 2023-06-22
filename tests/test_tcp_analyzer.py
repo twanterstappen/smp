@@ -10,7 +10,7 @@ from random import randint
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from tcp_analyzer.tcp_analyzer import TcpConnectionAnalyzer
 
-
+# Class for testing, cant have a init
 class TestTcpConnectionAnalyzer:
     # Class level setup
     @classmethod
@@ -22,7 +22,7 @@ class TestTcpConnectionAnalyzer:
     def teardown_class(cls):
         os.remove("test.txt")
         
-    # Method level setup, invoked before every test method
+    # Method level setup, called before every test method
     def setup_method(self, method):
         self.dataset = '../dataset.json'
         self.analyzer = TcpConnectionAnalyzer(self.dataset)
@@ -144,7 +144,6 @@ class TestTcpConnectionAnalyzer:
 
 
 
-
     # Positive test display_count_connection_status
     def test_display_count_connection_status_positive(self, capfd):
         # Initialize colorama, for color used in output of function
@@ -167,3 +166,79 @@ class TestTcpConnectionAnalyzer:
         actual_output = captured.out.strip()
         
         assert actual_output == expected_output.strip()
+        
+        
+        
+        
+        
+        
+        
+    # Test function syn flood
+    ###################################################################################################################################
+    # Positive test syn_flood 1
+    def test_syn_flood_positive_1(self):
+        # Calling the class and necessary functions       
+        connections = [
+            {'ip_client': '192.168.0.1'},
+            {'ip_client': '192.168.0.2'},
+            {'ip_client': '192.168.0.1'},
+            {'ip_client': '192.168.0.3'},
+            {'ip_client': '192.168.0.1'},
+        ]
+        # Changing the connections
+        self.analyzer.connections = connections
+        # Changing minimum syn requist
+        self.analyzer.syn_flood_minimum = 2
+        
+        self.analyzer.syn_flood()
+        expected_result = {'192.168.0.1': 3}
+        
+        assert self.analyzer.syn_flood_counter == expected_result
+    
+    # Positive test syn_flood 2
+    def test_syn_flood_positive_2(self):
+        # Calling the class and necessary functions
+        self.analyzer.extract_data()
+        self.analyzer.find_connection()
+        # Changing the connections
+        self.analyzer.connections = None
+        self.analyzer.syn_flood()
+        
+        assert self.analyzer.syn_flood_counter == {}
+            
+        
+
+
+
+
+
+    # Test function tcp hijacking and display
+    ###################################################################################################################################
+    # Positive test tcp_hijacking
+    def test_tcp_hijacking_positive(self):
+        # Create an instance of the class or mock the necessary dependencies
+        self.analyzer.extract_data()
+        self.analyzer.find_connection()
+        # Set the threshold
+        self.analyzer.hijacking_threshold_percentage = 5
+
+        self.analyzer.tcp_hijacking()
+
+        expected_result_length = 19
+        assert len(self.analyzer.possible_hijacking) == expected_result_length
+        
+    # Negative test tcp_hijacking    
+    def test_tcp_hijacking_negative(self):
+        # Create an instance of the class or mock the necessary dependencies
+        self.analyzer.extract_data()
+        # Set connections
+        connections = [
+            {'status': 'success', 'packages_index': [0, 1, 2]},
+            {'status': 'success', 'packages_index': [3, 4, 5]},
+        ]
+        self.analyzer.connections = connections
+        # changing the key
+        self.analyzer.packages = [{'ttl': '64'}, {'ttl': 'invalid'}, {'ttl': '128'}, {'ttl': '128'}, {'ttl': '128'}, {'ttl': '128'}]
+        # Expecting a Value error
+        with pytest.raises(ValueError):
+            self.analyzer.tcp_hijacking()

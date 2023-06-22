@@ -137,13 +137,19 @@ Hierin wordt de standaard afwijking berekend op basis van alle pakket hun TTL in
 <br><br><br>
 
 ### Testing:
-- **test_load_data_negative(file_path, expected_exception)**: negative test voor load_data. Verwachte error: FileNotFoundError en json.JSONDecodeError
-- **test_extract_data()**: positieve test voor extract data. Verwachte output type is list
-- **test_count_connection_status_positive()**: testen van functie count_connection_status. Verwachte output type dictionary
-- **test_display_count_connection_status_positive(capfd)**: testen van functie display_count_connection_status. Verwachte output:
-    - Total connections: 221\n"
-        - closed: 84\n"
-        - no-fin: 85\n"
-        - failed-handshake: 52\n"
 
-
+- **test_load_data_positive_1(self)**: Positieve test om te controleren of de functie `load_data` gegevens retourneert van het juiste type.
+- **test_load_data_positive_2(self)**: Positieve test om te controleren of de functie `load_data` gegevens retourneert waarvan een willekeurige index het sleutelwoord 'ip.src' bevat.
+- **test_load_data_negative_1(self)**: Negatieve test om te controleren of de functie `load_data` een `FileNotFoundError` opwerpt wanneer het opgegeven bestand niet gevonden wordt.
+- **test_load_data_negative_2(self)**: Negatieve test om te controleren of de functie `load_data` een `json.JSONDecodeError` opwerpt wanneer het JSON-bestand ongeldig is.
+- **test_extract_data_positive_1(self)**: Positieve test om te controleren of de functie `extract_data` gegevens retourneert van het juiste type.
+- **test_extract_data_positive_2(self)**: Positieve test om te controleren of de functie `extract_data` gegevens retourneert waarvan een willekeurige index de vereiste sleutelwoorden bevat.
+- **test_extract_data_negative(self)**: Negatieve test om te controleren of de functie `extract_data` een `KeyError` opwerpt wanneer de vereiste sleutelwoorden ontbreken.
+- **test_count_connection_status_positive_1(self)**: Positieve test om te controleren of de functie `count_connection_status` een statusdict retourneert.
+- **test_count_connection_status_positive_2(self)**: Positieve test om te controleren of de functie `count_connection_status` een statusdict retourneert waarvan de sleutelwoorden overeenkomen met de verwachte waarden.
+- **test_count_connection_status_negative(self)**: Negatieve test om te controleren of de functie `count_connection_status` een `TypeError` opwerpt wanneer de status `None` is.
+- **test_display_count_connection_status_positive(self, capfd)**: Positieve test om te controleren of de functie `display_count_connection_status` de juiste uitvoer genereert.
+- **test_syn_flood_positive_1(self)**: Positieve test om te controleren of de functie `syn_flood` het juiste aantal SYN-overstromingen telt voor een gegeven set verbindingen.
+- **test_syn_flood_positive_2(self)**: Positieve test om te controleren of de functie `syn_flood` geen SYN-overstromingen telt wanneer er geen verbindingen zijn.
+- **test_tcp_hijacking_positive(self)**: Positieve test om te controleren of de functie `tcp_hijacking` mogelijke gevallen van TCP-kaping identificeert volgens het opgegeven percentage.
+- **test_tcp_hijacking_negative(self)**: Negatieve test om te controleren of de functie `tcp_hijacking` een `ValueError` opwerpt wanneer de TTL-waarden ongeldig zijn.
